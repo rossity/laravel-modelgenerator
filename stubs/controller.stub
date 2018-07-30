@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\{{modelName}}Request;
 use App\Http\Resources\{{modelName}}Resource;
+use App\Http\Resources\{{modelName}}Collection;
 use App\{{modelName}};
 use Spatie\QueryBuilder\Filter;
 use Spatie\QueryBuilder\QueryBuilder;
