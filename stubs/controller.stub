@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\{{modelName}}Request;
+use App\Http\Resources\{{modelName}}Resource;
+use App\{{modelName}};
+use Spatie\QueryBuilder\Filter;
+use Spatie\QueryBuilder\QueryBuilder;
+
+class {{modelName}}Controller extends Controller
+{
+    public function index()
+    {
+        ${{pluralNameVariable}} = QueryBuilder::for({{modelName}}::class)
+            ->allowedFilters({{allowedFilters}})
+            ->latest()
+            ->get();
+
+        return response(new {{modelName}}Collection(${{pluralNameVariable}}));
+    }
+
+    public function store({{modelName}}Request $request)
+    {
+        ${{nameVariable}} = {{modelName}}::create($request->all());
+
+        return response(new {{modelName}}Resource(${{nameVariable}}), 201);
+    }
+
+    public function show(${{nameVariable}})
+    {
+        return response(new {{modelName}}Resource(${{nameVariable}}));
+    }
+
+    public function update({{modelName}}Request $request, ${{nameVariable}})
+    {
+        ${{nameVariable}}->update($request->all());
+
+        return response(new {{modelName}}Resource(${{nameVariable}}), 200);
+    }
+
+    public function destroy(${{nameVariable}})
+    {
+        ${{nameVariable}}->delete();
+
+        return response()->json(null, 204);
+    }
+}

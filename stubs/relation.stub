@@ -1,0 +1,4 @@
+    public function {{belongingRelation}}()
+    {
+        return $this->{{relation}}('{{belongingModel}}');
+    }

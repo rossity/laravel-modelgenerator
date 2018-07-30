@@ -1,0 +1,67 @@
+<?php
+
+class {{modelName}}Template
+{
+    /**
+     * The fields associated with the model
+     *
+     * extra_rules: validation rules other than 'nullable|required|type'
+     * filterable: filterable in QueryBuilder, one of true|false|'exact'
+     *
+     * @var array
+     */
+    public $fields = [
+        'field_string' => [
+            'type' => 'string',
+            'default' => null,
+            'required' => false,
+            'nullable' => true,
+            'extra_rules' => '',
+            'filterable' => true,
+        ],
+        'field_boolean' => [
+            'type' => 'boolean',
+            'default' => 0,
+            'required' => true,
+            'nullable' => false,
+            'extra_rules' => '',
+            'filterable' => 'exact',
+        ],
+        'field_integer' => [
+            'type' => 'integer',
+            'default' => null,
+            'required' => true,
+            'nullable' => true,
+            'extra_rules' => '',
+            'filterable' => 'exact',
+        ],
+    ];
+
+    /**
+     * Model that this model belongs to
+     * Options below pertain only to the parent model
+     *
+     * include_in_resource: one of true|false|'in_query'
+     *
+     * @var array
+     */
+    public $related = [
+        'name' => 'User',
+        'type' => 'hasOne',
+        'include_in_resource' => true,
+    ];
+
+    /**
+     * Log activity of this model
+     *
+     * @var boolean
+     */
+    public $logActivity = true;
+
+    /**
+     * Add media to this model
+     *
+     * @var boolean
+     */
+    public $addMedia = false;
+}

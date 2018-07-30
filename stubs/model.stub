@@ -1,0 +1,23 @@
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;{{logsActivity}}
+use Spatie\Activitylog\Traits\LogsActivity;{{/logsActivity}}{{hasMedia}}
+use Spatie\MediaLibrary\HasMedia\HasMedia;
+use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
+{{/hasMedia}}
+
+class {{modelName}} extends Model{{hasMedia}} implements HasMedia{{/hasMedia}}
+{
+    protected $guarded = [];{{logsActivity}}
+    protected static $logAttributes = ['*'];
+    protected static $logOnlyDirty = true;
+
+    use LogsActivity;{{/logsActivity}}{{hasMedia}}
+    use HasMediaTrait;
+    {{/hasMedia}}
+    
+{{belongsTo}}{{relation}}{{/belongsTo}}
+
+}
