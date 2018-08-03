@@ -48,7 +48,6 @@ class {{modelName}}Template
     public $related = [
         'name' => 'User',
         'type' => 'hasOne',
-        'include_in_resource' => true,
     ];
 
     /**
