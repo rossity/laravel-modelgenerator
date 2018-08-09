@@ -10,13 +10,15 @@ use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 
 class {{modelName}} extends Model{{hasMedia}} implements HasMedia{{/hasMedia}}
 {
+    {{hasMedia}}
+    use HasMediaTrait;{{/hasMedia}}{{logsActivity}}
+    use LogsActivity;{{/logsActivity}}
+    
     protected $guarded = [];{{logsActivity}}
     protected static $logAttributes = ['*'];
     protected static $logOnlyDirty = true;
 
-    use LogsActivity;{{/logsActivity}}{{hasMedia}}
-    use HasMediaTrait;
-    {{/hasMedia}}
+    use LogsActivity;{{/logsActivity}}
     
 {{belongsTo}}{{relation}}{{/belongsTo}}
 
