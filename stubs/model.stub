@@ -14,11 +14,11 @@ class {{modelName}} extends Model{{hasMedia}} implements HasMedia{{/hasMedia}}
     use HasMediaTrait;{{/hasMedia}}{{logsActivity}}
     use LogsActivity;{{/logsActivity}}
     
-    protected $guarded = [];{{logsActivity}}
+    protected $guarded = [];
+    
+    {{logsActivity}}
     protected static $logAttributes = ['*'];
-    protected static $logOnlyDirty = true;
-
-    use LogsActivity;{{/logsActivity}}
+    protected static $logOnlyDirty = true;{{/logsActivity}}
     
 {{belongsTo}}{{relation}}{{/belongsTo}}
 
