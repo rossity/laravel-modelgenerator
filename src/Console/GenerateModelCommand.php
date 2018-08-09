@@ -147,7 +147,7 @@ class GenerateModelCommand extends Command
             ->map(function ($item, $key) {
                 $fieldArray = explode(',', $item['type'], 2);
                 $name = $key;
-                $constraints = count($fieldArray) > 1 ? ".{$fieldArray[0]}" : '';
+                $constraints = count($fieldArray) > 1 ? ",{$fieldArray[1]}" : '';
                 $field = '$table->' . "{$fieldArray[0]}('{$name}'{$constraints})";
                 if ($item['nullable']) {
                     $field = $field . '->nullable()';
@@ -334,6 +334,21 @@ class GenerateModelCommand extends Command
 
         $this->fields = collect($template->fields);
         $this->related = $template->related;
+        if ($this->related) {
+            $relation_name = lcfirst($this->related['name']);
+            $this->fields->prepend(
+                [
+                    'type' => 'integer',
+                    'default' => null,
+                    'required' => true,
+                    'nullable' => false,
+                    'extra_rules' => '',
+                    'filterable' => 'exact',
+                ],
+                "{$relation_name}_id"
+            );
+        }
+
         $this->logActivity = $template->logActivity;
         $this->addMedia = $template->addMedia;
 
