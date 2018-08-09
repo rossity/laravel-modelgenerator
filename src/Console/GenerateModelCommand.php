@@ -117,7 +117,32 @@ class GenerateModelCommand extends Command
 
         $fields = $this->fields
             ->map(function ($item, $key) {
-                return "'{$key}' => " . '$faker->foo(),';
+                switch (explode(',', $item['type'])[0]) {
+                    case 'dateTime':
+                        $seed = '$faker->dateTimeBetween($startDate = \'-6 months\', $endDate = \'now\', $timezone = null)->format(\'Y-m-d H:i:s\')';
+                        break;
+                    case 'date':
+                        $seed = '$faker->dateTimeBetween($startDate = \'-6 months\', $endDate = \'now\', $timezone = null)->format(\'Y-m-d\')';
+                        break;
+                    case 'boolean':
+                        $seed = '$bool = rand(0,1)';
+                        break;
+                    case 'integer':
+                        $seed = '$integer = rand($low = 1, $high = 10)';
+                        break;
+                    case 'float':
+                        $seed = '$float = rand($low = 1, $high = 10) / 10';
+                        break;
+                    case 'string':
+                        $seed = '$faker->sentence($nbWords = 6, $variableNbWords = true)';
+                        break;
+                    case 'text':
+                        $seed = '$faker->text($maxNbChars = 200)';
+                        break;
+                    default:
+                        $seed = '$faker->foo()';
+                }
+                return "'{$key}' => {$seed},";
             })
             ->all();
 
