@@ -69,10 +69,26 @@ class GenerateModelCommand extends Command
                 if ($item['required']) {
                     $validation = $validation . 'required|';
                 }
-                $validation = $validation . $item['type'];
+
                 if ($item['extra_rules']) {
-                    $validation = $validation . '|' . $item['extra_rules'];
+                    $validation = $validation . '|' . $item['extra_rules'] . '|';
                 }
+                $type = explode(',', $item['type'], 2)[0];
+                switch ($type) {
+                    case 'float':
+                        $type = 'numeric';
+                        break;
+                    case 'dateTime':
+                        $type = 'date_format:Y-m-d H:i:s';
+                        break;
+                    case 'date':
+                        $type = 'date_format:Y-m-d';
+                        break;
+                    case 'text':
+                        $type = 'string';
+                        break;
+                }
+                $validation = $validation . $type;
                 return "'{$key}' => '$validation'";
             })
             ->all();
@@ -129,7 +145,10 @@ class GenerateModelCommand extends Command
 
         $fields = $this->fields
             ->map(function ($item, $key) {
-                $field = '$table->' . "{$item['type']}('{$key}')";
+                $fieldArray = explode(',', $item['type'], 2);
+                $name = $key;
+                $constraints = count($fieldArray) > 1 ? ".{$fieldArray[0]}" : '';
+                $field = '$table->' . "{$fieldArray[0]}('{$name}'{$constraints})";
                 if ($item['nullable']) {
                     $field = $field . '->nullable()';
                 }

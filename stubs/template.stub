@@ -5,7 +5,7 @@ class {{modelName}}Template
     /**
      * The fields associated with the model
      *
-     * extra_rules: validation rules other than 'nullable|required|type'
+     * extra_rules: validation rules other than 'nullable|required|<type>'
      * filterable: filterable in QueryBuilder, one of true|false|'exact'
      *
      * @var array
@@ -34,6 +34,38 @@ class {{modelName}}Template
             'nullable' => true,
             'extra_rules' => '',
             'filterable' => 'exact',
+        ],
+        'field_float' => [
+            'type' => 'float, 4, 1',
+            'default' => null,
+            'required' => true,
+            'nullable' => true,
+            'extra_rules' => '',
+            'filterable' => false,
+        ],
+        'field_text' => [
+            'type' => 'text',
+            'default' => null,
+            'required' => true,
+            'nullable' => true,
+            'extra_rules' => '',
+            'filterable' => false,
+        ],
+        'field_date' => [
+            'type' => 'date',
+            'default' => null,
+            'required' => true,
+            'nullable' => true,
+            'extra_rules' => '',
+            'filterable' => false,
+        ],
+        'field_date_time' => [
+            'type' => 'dateTime',
+            'default' => null,
+            'required' => true,
+            'nullable' => true,
+            'extra_rules' => '',
+            'filterable' => false,
         ],
     ];
 

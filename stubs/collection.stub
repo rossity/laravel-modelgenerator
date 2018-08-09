@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\{{modelName}}Resource;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class {{modelName}}Collection extends ResourceCollection
