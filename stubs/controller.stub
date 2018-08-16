@@ -18,29 +18,29 @@ class {{modelName}}Controller extends Controller
             ->latest()
             ->get();
 
-        return response(new {{modelName}}Collection(${{pluralNameVariable}}));
+        return (new {{modelName}}Collection(${{pluralNameVariable}}))->response(200);
     }
 
     public function store({{modelName}}Request $request)
     {
         ${{nameVariable}} = {{modelName}}::create($request->all());
 
-        return response(new {{modelName}}Resource(${{nameVariable}}), 201);
+        return (new {{modelName}}Resource(${{nameVariable}}))->response(201);
     }
 
-    public function show(${{nameVariable}})
+    public function show({{modelName}} ${{nameVariable}})
     {
-        return response(new {{modelName}}Resource(${{nameVariable}}));
+        return (new {{modelName}}Resource(${{nameVariable}}))->response(200);
     }
 
-    public function update({{modelName}}Request $request, ${{nameVariable}})
+    public function update({{modelName}}Request $request, {{modelName}} ${{nameVariable}})
     {
         ${{nameVariable}}->update($request->all());
 
-        return response(new {{modelName}}Resource(${{nameVariable}}), 200);
+        return (new {{modelName}}Resource(${{nameVariable}}))->response(200);
     }
 
-    public function destroy(${{nameVariable}})
+    public function destroy({{modelName}} ${{nameVariable}})
     {
         ${{nameVariable}}->delete();
 
