@@ -1,6 +1,8 @@
 # laravel-modelgenerator
 Easily scaffold and API model
 
+This is highly specific to my own use-cases and projects.
+
 ## Commands
 `php artisan generate:template {model}`
 
