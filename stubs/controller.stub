@@ -8,12 +8,17 @@ use App\Http\Resources\{{modelName}}Collection;
 use App\{{modelName}};
 use Spatie\QueryBuilder\Filter;
 use Spatie\QueryBuilder\QueryBuilder;
+use Illuminate\Support\Facades\Auth;
 
 class {{modelName}}Controller extends Controller
 {
     public function index()
     {
-        ${{pluralNameVariable}} = QueryBuilder::for({{modelName}}::class)
+        $query = Auth::user()->hasRole(['admin', 'moderator'])
+            ? ({{modelName}}::class)
+            : ({{modelName}}::where('user_id', Auth::id()));
+
+        ${{pluralNameVariable}} = QueryBuilder::for($query)
             ->allowedFilters({{allowedFilters}})
             ->latest()
             ->get();
@@ -23,25 +28,33 @@ class {{modelName}}Controller extends Controller
 
     public function store({{modelName}}Request $request)
     {
-        ${{nameVariable}} = {{modelName}}::create($request->all());
+        $this->authorize('create', {{modelName}}::class);
+
+        ${{nameVariable}} = {{modelName}}::create($request->except(['id', 'user_id']));
 
         return (new {{modelName}}Resource(${{nameVariable}}))->response(201);
     }
 
     public function show({{modelName}} ${{nameVariable}})
     {
+        $this->authorize('view', ${{nameVariable}});
+
         return (new {{modelName}}Resource(${{nameVariable}}))->response(200);
     }
 
     public function update({{modelName}}Request $request, {{modelName}} ${{nameVariable}})
     {
-        ${{nameVariable}}->update($request->all());
+        $this->authorize('update', ${{nameVariable}});
+
+        ${{nameVariable}}->update($request->except(['id', 'user_id']));
 
         return (new {{modelName}}Resource(${{nameVariable}}))->response(200);
     }
 
     public function destroy({{modelName}} ${{nameVariable}})
     {
+        $this->authorize('delete', ${{nameVariable}});
+        
         ${{nameVariable}}->delete();
 
         return response()->json(null, 204);

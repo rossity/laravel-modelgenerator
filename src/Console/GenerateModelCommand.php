@@ -299,6 +299,42 @@ class GenerateModelCommand extends Command
         file_put_contents(app_path("{$this->name}.php"), $modelTemplate);
     }
 
+    protected function createPolicy()
+    {
+        $file = base_path('/app/Providers/AuthServiceProvider.php');
+
+        $contents = preg_replace(
+            '/(\[.*)(\,).*]/ms',
+            "$1,\n" . $this->addSpaces(8) . "'App\\{$this->name}' => 'App\Policies\\{$this->name}Policy',\n" . $this->addSpaces(4) . "]",
+            file_get_contents($file)
+        );
+        file_put_contents(
+            $file,
+            $contents
+        );
+
+        $path = app_path('Policies');
+
+        if (!is_dir($path)) {
+            mkdir($path);
+        }
+
+        $controllerTemplate = str_replace(
+            [
+                '{{modelName}}',
+                '{{nameVariable}}',
+            ],
+            [
+                $this->name,
+                $this->nameVariable,
+            ],
+            $this->getStub('policy')
+        );
+
+        file_put_contents("{$path}\\{$this->name}Policy.php", $controllerTemplate);
+
+    }
+
     protected function createController()
     {
         $allowedFilters = $this->fields
@@ -333,7 +369,7 @@ class GenerateModelCommand extends Command
                 $this->nameVariable,
                 $allowedFilters,
             ],
-            $this->getStub('Controller')
+            $this->getStub('controller')
         );
 
         file_put_contents(app_path("/Http/Controllers/{$this->name}Controller.php"), $controllerTemplate);
@@ -387,6 +423,9 @@ class GenerateModelCommand extends Command
         $this->createController();
         $this->info('Controller created');
 
+        $this->createPolicy();
+        $this->info('Policy created');
+
         $this->createResources();
         $this->info('Resources created');
 
@@ -398,7 +437,7 @@ class GenerateModelCommand extends Command
 
         file_put_contents(
             base_path('routes/api.php'),
-            "Route::resource('" . snake_case($this->pluralName) . "', '{$this->name}Controller');",
+            "\nRoute::resource('" . snake_case($this->pluralName) . "', '{$this->name}Controller');",
             FILE_APPEND
         );
         $this->info('API route created, please move if necessary.');
