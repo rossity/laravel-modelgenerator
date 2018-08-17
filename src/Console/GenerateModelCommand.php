@@ -12,7 +12,8 @@ class GenerateModelCommand extends Command
      * @var string
      */
     protected $signature = 'generate:model
-        {name : Class name of model}';
+        {name : Class name of model}
+        {--scaffold=all}';
 
     /**
      * The console command description.
@@ -70,8 +71,12 @@ class GenerateModelCommand extends Command
                     $validation = $validation . 'required|';
                 }
 
+                if ($item['nullable']) {
+                    $validation = $validation . 'nullable|';
+                }
+
                 if ($item['extra_rules']) {
-                    $validation = $validation . '|' . $item['extra_rules'] . '|';
+                    $validation = $validation . $item['extra_rules'] . '|';
                 }
                 $type = explode(',', $item['type'], 2)[0];
                 switch ($type) {
@@ -79,10 +84,8 @@ class GenerateModelCommand extends Command
                         $type = 'numeric';
                         break;
                     case 'dateTime':
-                        $type = 'date_format:Y-m-d H:i:s';
-                        break;
                     case 'date':
-                        $type = 'date_format:Y-m-d';
+                        $type = 'date';
                         break;
                     case 'text':
                         $type = 'string';
@@ -109,6 +112,8 @@ class GenerateModelCommand extends Command
             app_path("Http/Requests/{$this->name}Request.php"),
             $requestTemplate
         );
+
+        $this->info('Request created');
     }
 
     protected function createFactory()
@@ -162,6 +167,9 @@ class GenerateModelCommand extends Command
             base_path("database/factories/{$this->name}Factory.php"),
             $factoryTemplate
         );
+
+        $this->info('Factory created');
+
     }
 
     protected function createMigration()
@@ -199,6 +207,9 @@ class GenerateModelCommand extends Command
             base_path("database/migrations/" . date('Y_m_d_His') . "_create_{$snaked_variable}_table.php"),
             $migrationTemplate
         );
+
+        $this->info('Migration created');
+
     }
 
     protected function createResources()
@@ -245,6 +256,9 @@ class GenerateModelCommand extends Command
             $this->getStub('collection')
         );
         file_put_contents(app_path("Http/Resources/{$this->name}Collection.php"), $resourceTemplate);
+
+        $this->info('Resources created');
+
     }
 
     protected function createModel()
@@ -294,9 +308,11 @@ class GenerateModelCommand extends Command
 
         $modelTemplate = $this->logActivity ? $this->removeTag($modelTemplate, 'logsActivity') : $this->removeBlock($modelTemplate, 'logsActivity');
         $modelTemplate = $this->addMedia ? $this->removeTag($modelTemplate, 'hasMedia') : $this->removeBlock($modelTemplate, 'hasMedia');
-
         $modelTemplate = str_replace(['{{modelName}}'], $this->name, $modelTemplate);
+
         file_put_contents(app_path("{$this->name}.php"), $modelTemplate);
+
+        $this->info('Model created');
     }
 
     protected function createPolicy()
@@ -332,6 +348,8 @@ class GenerateModelCommand extends Command
         );
 
         file_put_contents("{$path}\\{$this->name}Policy.php", $controllerTemplate);
+
+        $this->info('Policy created');
 
     }
 
@@ -372,7 +390,41 @@ class GenerateModelCommand extends Command
             $this->getStub('controller')
         );
 
-        file_put_contents(app_path("/Http/Controllers/{$this->name}Controller.php"), $controllerTemplate);
+        $path = app_path('Http/Controllers/Api');
+
+        if (!is_dir($path)) {
+            mkdir($path);
+        }
+
+        file_put_contents("{$path}\\{$this->name}Controller.php", $controllerTemplate);
+
+        $this->info('Controller created');
+    }
+
+    private function addRoutes()
+    {
+        $file = base_path('routes/api.php');
+        $regex = '/apiResources\(\[.+?(?!\,.*)(?=]\);)/ms';
+        $matched = preg_match($regex, file_get_contents($file));
+        if ($matched) {
+            $contents = preg_replace(
+                $regex,
+                '$0' . $this->addSpaces(4) . "'{$this->pluralNameVariable}' => '{$this->name}Controller',\n" . $this->addSpaces(12),
+                file_get_contents($file)
+            );
+            file_put_contents(
+                $file,
+                $contents
+            );
+            $this->info('API route added to resources array.');
+        } else {
+            file_put_contents(
+                $file,
+                "\nRoute::resource('" . snake_case($this->pluralName) . "', '{$this->name}Controller')->namespace('Api');",
+                FILE_APPEND
+            );
+            $this->info('API route appended to routes file, please move if necessary.');
+        }
     }
 
     /**
@@ -413,34 +465,47 @@ class GenerateModelCommand extends Command
         $this->logActivity = $template->logActivity;
         $this->addMedia = $template->addMedia;
 
+        switch ($this->option('scaffold')) {
+            case 'model':
+                $this->createModel();
+                break;
+            case 'migration':
+                $this->createMigration();
+                break;
+            case 'controller':
+                $this->createController();
+                break;
+            case 'policy':
+                $this->createPolicy();
+                break;
+            case 'resources':
+                $this->createResources();
+                break;
+            case 'request':
+                $this->createRequest();
+                break;
+            case 'factory':
+                $this->createFactory();
+                break;
+            case 'routes':
+                $this->addRoutes();
+                break;
+            case 'all':
+                $this->createModel();
+                $this->createMigration();
+                $this->createController();
+                $this->createPolicy();
+                $this->createResources();
+                $this->createRequest();
+                $this->createFactory();
+                $this->addRoutes();
+                break;
+            default:
+                $this->warn('Incorrect command option.');
+                break;
+        }
 
-        $this->createModel();
-        $this->info('Model created');
 
-        $this->createMigration();
-        $this->info('Migration created');
-
-        $this->createController();
-        $this->info('Controller created');
-
-        $this->createPolicy();
-        $this->info('Policy created');
-
-        $this->createResources();
-        $this->info('Resources created');
-
-        $this->createRequest();
-        $this->info('Request created');
-
-        $this->createFactory();
-        $this->info('Factory created');
-
-        file_put_contents(
-            base_path('routes/api.php'),
-            "\nRoute::resource('" . snake_case($this->pluralName) . "', '{$this->name}Controller');",
-            FILE_APPEND
-        );
-        $this->info('API route created, please move if necessary.');
     }
 
 }
