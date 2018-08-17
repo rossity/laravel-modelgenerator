@@ -1,5 +1,5 @@
 # laravel-modelgenerator
-Easily scaffold and API model
+Easily scaffold an API model.
 
 This is highly specific to my own use-cases and projects.
 
@@ -64,9 +64,10 @@ Configure the file based on configuration specs
   Generates the following:
   
     - Model in `app\Http`
-    - Resource Controller in `app\Http\Controllers`
+    - Resource Controller in `app\Http\Controllers\Api`
+    - Policy in `App\Http\Policies` and registers it in `App\Providers\AuthServiceProvider`
     - Resource and Collection in `app\Http\Resources`
     - Request in `app\Http\Requests`
     - Factory in `database\factories`
     - Migration in `database\migrations`
-    - Appends a resource route to `routes\api.php` which most likely needs to be moved to somewhere else in the file
+    - Appends a resource route to `routes\api.php` or adds it to apiResource array
