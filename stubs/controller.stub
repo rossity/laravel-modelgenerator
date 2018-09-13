@@ -31,7 +31,7 @@ class {{modelName}}Controller extends Controller
     {
         $this->authorize('create', {{modelName}}::class);
 
-        $entry = Auth::user()->hasRole(['admin', 'moderator'])
+        ${{nameVariable}} = Auth::user()->hasRole(['admin', 'moderator'])
             ? ({{modelName}}::create($request->except('id')))
             : ({{modelName}}::create($request->except(['id', 'user_id']) + ['user_id' => Auth::id()]));
 
