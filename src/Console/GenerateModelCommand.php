@@ -325,7 +325,7 @@ class GenerateModelCommand extends Command
             $modelTemplate = $this->removeTag($modelTemplate, 'belongsTo');
         } else {
             $modelTemplate = $this->removeBlock($modelTemplate, 'belongsTo');
-            $modelTemplate = $this->removeBlock($modelTemplate, 'guardedAttributes');
+            $modelTemplate = str_replace(['{{guardedAttributes}}'], '', $modelTemplate);
         }
 
         $modelTemplate = $this->logActivity ? $this->removeTag($modelTemplate, 'logsActivity') : $this->removeBlock($modelTemplate, 'logsActivity');
