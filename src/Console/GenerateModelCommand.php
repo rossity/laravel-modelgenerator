@@ -293,7 +293,7 @@ class GenerateModelCommand extends Command
                 $this->getStub('relation')
             );
             $relation_file = base_path('/app/' . $related['name'] . '.php');
-            $relation_content = rtrim(file_get_contents($relation_file), "}");
+            $relation_content = preg_replace("/\n}(?>.|\n)*/", '', file_get_contents($relation_file));
             file_put_contents(
                 $relation_file,
                 $relation_content . "\n" . $relationTemplate . "}"
