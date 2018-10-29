@@ -7,17 +7,18 @@ use App\Http\Resources\{{modelName}}Resource;
 use App\Http\Resources\{{modelName}}Collection;
 use App\Http\Controllers\Controller;
 use App\{{modelName}};
+{{hasRelated}}use App\{{relatedModel}};{{/hasRelated}}
 use Spatie\QueryBuilder\Filter;
 use Spatie\QueryBuilder\QueryBuilder;
 use Illuminate\Support\Facades\Auth;
 
 class {{modelName}}Controller extends Controller
 {
-    public function index()
+    public function index({{hasRelated}}{{relatedModel}} ${{relatedVariable}}{{/hasRelated}})
     {
-        $query = Auth::user()->hasRole(['admin', 'moderator'])
-            ? ({{modelName}}::class)
-            : ({{modelName}}::where('user_id', Auth::id()));
+        {{hasPolicy}}$this->authorize('view', ${{nameVariable}});{{/hasPolicy}}
+        {{notRelated}}$query = {{modelName}}::class;{{/notRelated}}
+        {{hasRelated}}$query = ${{relatedVariable}}->{{relation}}();{{/hasRelated}}
 
         ${{pluralNameVariable}} = QueryBuilder::for($query)
             ->allowedFilters({{allowedFilters}})
@@ -27,37 +28,35 @@ class {{modelName}}Controller extends Controller
         return (new {{modelName}}Collection(${{pluralNameVariable}}))->response(200);
     }
 
-    public function store({{modelName}}Request $request)
+    public function store({{modelName}}Request $request{{hasRelated}}, {{relatedModel}} ${{relatedVariable}}{{/hasRelated}})
     {
-        $this->authorize('create', {{modelName}}::class);
-
-        ${{nameVariable}} = Auth::user()->hasRole(['admin', 'moderator'])
-            ? ({{modelName}}::create($request->except('id')))
-            : ({{modelName}}::create($request->except(['id', 'user_id']) + ['user_id' => Auth::id()]));
+        {{hasPolicy}}$this->authorize('create', {{modelName}}::class);{{/hasPolicy}}
+        {{notRelated}}${{nameVariable}} = {{modelName}}::create($request->all());{{/notRelated}}
+        {{hasRelated}}${{nameVariable}} = ${{relatedVariable}}->{{relation}}()->create($request->all());{{/hasRelated}}
 
         return (new {{modelName}}Resource(${{nameVariable}}))->response(201);
     }
 
     public function show({{modelName}} ${{nameVariable}})
     {
-        $this->authorize('view', ${{nameVariable}});
-
+        {{hasPolicy}}$this->authorize('view', ${{nameVariable}});
+        {{/hasPolicy}}
         return (new {{modelName}}Resource(${{nameVariable}}))->response(200);
     }
 
     public function update({{modelName}}Request $request, {{modelName}} ${{nameVariable}})
     {
-        $this->authorize('update', ${{nameVariable}});
-
-        ${{nameVariable}}->update($request->except(['id', 'user_id']));
+        {{hasPolicy}}$this->authorize('update', ${{nameVariable}});
+        {{/hasPolicy}}
+        ${{nameVariable}}->update($request->all());
 
         return (new {{modelName}}Resource(${{nameVariable}}))->response(200);
     }
 
     public function destroy({{modelName}} ${{nameVariable}})
     {
-        $this->authorize('delete', ${{nameVariable}});
-        
+        {{hasPolicy}}$this->authorize('delete', ${{nameVariable}});
+        {{/hasPolicy}}
         ${{nameVariable}}->delete();
 
         return response()->json(null, 204);

@@ -12,8 +12,7 @@ class GenerateModelCommand extends Command
      * @var string
      */
     protected $signature = 'generate:model
-        {name : Class name of model}
-        {--scaffold=all}';
+        {name : Class name of model}';
 
     /**
      * The console command description.
@@ -391,15 +390,35 @@ class GenerateModelCommand extends Command
                 '{{pluralNameVariable}}',
                 '{{nameVariable}}',
                 '{{allowedFilters}}',
+                '{{relatedModel}}',
+                '{{relatedVariable}}',
+                '{{relation}}'
             ],
             [
                 $this->name,
                 $this->pluralNameVariable,
                 $this->nameVariable,
                 $allowedFilters,
+                $this->related['name'],
+                camel_case($this->related['name']),
+                snake_case($this->related['type'] === 'hasMany' ? str_plural($this->name) : $this->name)
             ],
             $this->getStub('controller')
         );
+
+        if ($this->related) {
+            $controllerTemplate = $this->removeBlock($controllerTemplate, 'notRelated');
+            $controllerTemplate = $this->removeTag($controllerTemplate, 'hasRelated');
+        } else {
+            $controllerTemplate = $this->removeBlock($controllerTemplate, 'hasRelated');
+            $controllerTemplate = $this->removeTag($controllerTemplate, 'notRelated');
+        }
+
+        if ($this->assets['policy']) {
+            $controllerTemplate = $this->removeTag($controllerTemplate, 'hasPolicy');
+        } else {
+            $controllerTemplate = $this->removeBlock($controllerTemplate, 'hasPolicy');
+        }
 
         $path = app_path('Http/Controllers/Api');
 
@@ -415,9 +434,16 @@ class GenerateModelCommand extends Command
     private function addRoutes()
     {
         $file = base_path('routes/api.php');
+
+        $routeName = snake_case($this->pluralName);
+
+        if ($this->related) {
+            $routeName = snake_case(str_plural($this->related['name'])) . '.' . $routeName;
+        }
+
         file_put_contents(
             $file,
-            "\nRoute::apiResource('" . snake_case($this->pluralName) . "', '{$this->name}Controller');",
+            "\nRoute::apiResource('" . $routeName . "', '{$this->name}Controller');",
             FILE_APPEND
         );
         $this->info('API route appended to routes file, please move if necessary.');
@@ -461,46 +487,32 @@ class GenerateModelCommand extends Command
         $this->logActivity = $template->logActivity;
         $this->addMedia = $template->addMedia;
 
-        switch ($this->option('scaffold')) {
-            case 'model':
-                $this->createModel();
-                break;
-            case 'migration':
-                $this->createMigration();
-                break;
-            case 'controller':
-                $this->createController();
-                break;
-            case 'policy':
-                $this->createPolicy();
-                break;
-            case 'resources':
-                $this->createResources();
-                break;
-            case 'request':
-                $this->createRequest();
-                break;
-            case 'factory':
-                $this->createFactory();
-                break;
-            case 'routes':
-                $this->addRoutes();
-                break;
-            case 'all':
-                $this->createModel();
-                $this->createMigration();
-                $this->createController();
-                $this->createPolicy();
-                $this->createResources();
-                $this->createRequest();
-                $this->createFactory();
-                $this->addRoutes();
-                break;
-            default:
-                $this->warn('Incorrect command option.');
-                break;
-        }
+        $this->assets = collect($template->assets);
 
+        if ($this->assets['model']) {
+            $this->createModel();
+        }
+        if ($this->assets['migration']) {
+            $this->createMigration();
+        }
+        if ($this->assets['controller']) {
+            $this->createController();
+        }
+        if ($this->assets['policy']) {
+            $this->createPolicy();
+        }
+        if ($this->assets['resources']) {
+            $this->createResources();
+        }
+        if ($this->assets['request']) {
+            $this->createRequest();
+        }
+        if ($this->assets['factory']) {
+            $this->createFactory();
+        }
+        if ($this->assets['routes']) {
+            $this->addRoutes();
+        }
 
     }
 

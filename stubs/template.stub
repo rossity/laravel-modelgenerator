@@ -95,4 +95,20 @@ class {{modelName}}Template
      * @var boolean
      */
     public $addMedia = false;
+
+    /**
+     * Assets to create
+     *
+     * @var array
+     */
+    public $assets = [
+        'model' => true,
+        'migration' => true,
+        'controller' => true,
+        'policy' => true,
+        'resources' => true,
+        'request' => true,
+        'factory' => true,
+        'routes' => true,
+    ];
 }
