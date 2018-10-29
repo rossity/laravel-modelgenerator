@@ -441,14 +441,14 @@ class GenerateModelCommand extends Command
         $template = new $class();
 
         $this->name = $name;
-        $this->nameVariable = lcfirst($this->name);
+        $this->nameVariable = camel_case($this->name);
         $this->pluralName = str_plural($this->name);
-        $this->pluralNameVariable = lcfirst($this->pluralName);
+        $this->pluralNameVariable = camel_case($this->pluralName);
 
         $this->fields = collect($template->fields);
         $this->related = $template->related;
         if ($this->related) {
-            $relation_name = lcfirst($this->related['name']);
+            $relation_name = snake_case($this->related['name']);
             $this->fields->prepend(
                 [
                     'type' => 'integer',
