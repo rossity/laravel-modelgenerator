@@ -32,6 +32,21 @@ class GenerateModelCommand extends Command
         parent::__construct();
     }
 
+    protected function setPath($path)
+    {
+        $array_folder = explode('/', $path);
+        $mk_folder = "";
+
+        foreach ($array_folder as $folder) {
+            $mk_folder = $mk_folder . $folder . "/";
+            if (!is_dir($mk_folder)) {
+                mkdir($mk_folder);
+            }
+        }
+
+        return $path;
+    }
+
     protected function getStub($type)
     {
         return file_get_contents(__DIR__ . "/../../stubs/$type.stub");
@@ -58,12 +73,6 @@ class GenerateModelCommand extends Command
 
     protected function createRequest()
     {
-        $path = app_path('Http/Requests');
-
-        if (!is_dir($path)) {
-            mkdir($path);
-        }
-
         $fields = $this->fields
             ->map(function ($item, $key) {
                 $validation = '';
@@ -108,8 +117,10 @@ class GenerateModelCommand extends Command
             $this->getStub('request')
         );
 
+        $path = $this->setPath(app_path('Http/Requests/Api/'));
+
         file_put_contents(
-            app_path("Http/Requests/{$this->name}Request.php"),
+            $path . "{$this->name}Request.php",
             $requestTemplate
         );
 
