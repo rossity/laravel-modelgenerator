@@ -310,10 +310,22 @@ class GenerateModelCommand extends Command
                 ],
                 $this->getStub('relation')
             );
-            $modelTemplate = str_replace(['{{relation}}'], [$relationTemplate], $modelTemplate);
+            $modelTemplate = str_replace(
+                [
+                    '{{relation}}',
+                    '{{guardedAttributes}}'
+                ],
+                [
+                    $relationTemplate,
+                    ", '" . snake_case($related['name']) . "_id'"
+                ],
+                $modelTemplate
+            );
+
             $modelTemplate = $this->removeTag($modelTemplate, 'belongsTo');
         } else {
             $modelTemplate = $this->removeBlock($modelTemplate, 'belongsTo');
+            $modelTemplate = $this->removeBlock($modelTemplate, 'guardedAttributes');
         }
 
         $modelTemplate = $this->logActivity ? $this->removeTag($modelTemplate, 'logsActivity') : $this->removeBlock($modelTemplate, 'logsActivity');

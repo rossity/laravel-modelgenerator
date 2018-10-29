@@ -14,7 +14,7 @@ class {{modelName}} extends Model{{hasMedia}} implements HasMedia{{/hasMedia}}
 
     protected static $logAttributes = ['*'];
     protected static $logOnlyDirty = true;{{/logsActivity}}
-    protected $guarded = [];
+    protected $guarded = ['id'{{guardedAttributes}}];
     
 {{belongsTo}}{{relation}}{{/belongsTo}}
 }
