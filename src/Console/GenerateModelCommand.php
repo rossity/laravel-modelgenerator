@@ -404,27 +404,12 @@ class GenerateModelCommand extends Command
     private function addRoutes()
     {
         $file = base_path('routes/api.php');
-        $regex = '/apiResources\(\[.+?(?!\,.*)(?=]\);)/ms';
-        $matched = preg_match($regex, file_get_contents($file));
-        if ($matched) {
-            $contents = preg_replace(
-                $regex,
-                '$0' . $this->addSpaces(4) . "'{$this->pluralNameVariable}' => '{$this->name}Controller',\n" . $this->addSpaces(12),
-                file_get_contents($file)
-            );
-            file_put_contents(
-                $file,
-                $contents
-            );
-            $this->info('API route added to resources array.');
-        } else {
-            file_put_contents(
-                $file,
-                "\nRoute::resource('" . snake_case($this->pluralName) . "', '{$this->name}Controller')->namespace('Api');",
-                FILE_APPEND
-            );
-            $this->info('API route appended to routes file, please move if necessary.');
-        }
+        file_put_contents(
+            $file,
+            "\nRoute::apiResource('" . snake_case($this->pluralName) . "', '{$this->name}Controller');",
+            FILE_APPEND
+        );
+        $this->info('API route appended to routes file, please move if necessary.');
     }
 
     /**
